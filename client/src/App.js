@@ -8,6 +8,9 @@ const AuthenticationContext = createContext();
 const users = {
   user1: 'password1',
   user2: 'password2',
+  user3: 'password3',
+  user4: 'password4',
+  user5: 'password5',
 };
 
 // --- Authentication Component ---
@@ -16,7 +19,7 @@ const users = {
 const AuthenticationComponent = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
-  const [invalidMessage, setInvalidMessage] = useState('');
+  const [isInvalid, setIsInvalid] = useState(false);
 
   // Log in process
   const handleLogin = (givenUsername, givenPassword) => {
@@ -24,9 +27,9 @@ const AuthenticationComponent = ({ children }) => {
     if (storedPassword && storedPassword === givenPassword) {
       setIsLoggedIn(true);
       setUsername(givenUsername);
-      setInvalidMessage('');
+      setIsInvalid(false);
     } else {
-      setInvalidMessage('Invalid username or password'); // Need to change this to a different page instead -------------------------
+      setIsInvalid(true);
     }
   };
 
@@ -34,13 +37,14 @@ const AuthenticationComponent = ({ children }) => {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUsername('');
+    setIsInvalid(false);
   };
 
   // Object to hold the values of the authentication
   const AuthenticationValues = {
     isLoggedIn,
     username,
-    invalidMessage,
+    isInvalid,
     handleLogin,
     handleLogout,
   };
@@ -58,7 +62,7 @@ const AuthenticationComponent = ({ children }) => {
 const FormComponent = () => {
 
   // Accesses the authentication context
-  const { isLoggedIn, username, invalidMessage, handleLogin, handleLogout } =
+  const { isLoggedIn, username, isInvalid, handleLogin, handleLogout } =
     useContext(AuthenticationContext);
 
   // State to manage input boxes
@@ -66,11 +70,9 @@ const FormComponent = () => {
   const [givenPassword, setGivenPassword] = useState('');
 
   // Accesses current input values
-
   const handleUsernameChange = (event) => {
     setGivenUsername(event.target.value);
   };
-
   const handlePasswordChange = (event) => {
     setGivenPassword(event.target.value);
   };
@@ -80,16 +82,23 @@ const FormComponent = () => {
     handleLogin(givenUsername, givenPassword);
   };
 
+  // rendering of pages
   return (
     <div>
       {isLoggedIn ? (
-        // 'isLoggedIn' is true
+        // User is logged in (welcome page)
         <div>
           <p>Welcome, {username}!</p>
           <button onClick={handleLogout}>Logout</button>
         </div>
+      ) : isInvalid ? (
+        // User inputs invalid details (invalid username/password page)
+        <div>
+          <p>Invalid username or password</p>
+          <button onClick={handleLogout}>Logout</button>
+        </div>
       ) : (
-        // 'isLoggedIn' is false
+        // User is not logged in (homepage)
         <div>
           <input
             type="text"
@@ -104,11 +113,10 @@ const FormComponent = () => {
             onChange={handlePasswordChange}
           />
           <button onClick={handleLoginSubmit}>Login</button>
-          <p>{invalidMessage}</p>
         </div>
       )}
     </div>
-  );
+  );  
 };
 
 const App = () => {
