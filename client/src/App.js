@@ -1,62 +1,121 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, { useState, useContext, createContext } from 'react';
 
-const App = () => {
+// Create a context for user authentication logic
+const AuthenticationContext = createContext();
+
+// Object to store username and password combinations
+const users = {
+  user1: 'password1',
+  user2: 'password2',
+};
+
+// --- Authentication Component ---
+
+// Manages the state of the authentication
+const AuthenticationComponent = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [invalidMessage, setInvalidMessage] = useState('');
 
-  const handleLogin = () => {
-
-    if (username === 'user' && password === 'password') {
+  // Log in process
+  const handleLogin = (givenUsername, givenPassword) => {
+    const storedPassword = users[givenUsername];
+    if (storedPassword && storedPassword === givenPassword) {
       setIsLoggedIn(true);
-      setErrorMessage('');
+      setUsername(givenUsername);
+      setInvalidMessage('');
     } else {
-      setErrorMessage('Invalid username or password');
+      setInvalidMessage('Invalid username or password'); // Need to change this to a different page instead -------------------------
     }
   };
 
+  // Log out process
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUsername('');
-    setPassword('');
   };
 
+  // Object to hold the values of the authentication
+  const AuthenticationValues = {
+    isLoggedIn,
+    username,
+    invalidMessage,
+    handleLogin,
+    handleLogout,
+  };
+
+  // allows child components to have access to the authentication context
+  return (
+    <AuthenticationContext.Provider value={AuthenticationValues}>
+      {children}
+    </AuthenticationContext.Provider>
+  );
+};
+
+// --- Form Component ---
+
+const FormComponent = () => {
+
+  // Accesses the authentication context
+  const { isLoggedIn, username, invalidMessage, handleLogin, handleLogout } =
+    useContext(AuthenticationContext);
+
+  // State to manage input boxes
+  const [givenUsername, setGivenUsername] = useState('');
+  const [givenPassword, setGivenPassword] = useState('');
+
+  // Accesses current input values
+
   const handleUsernameChange = (event) => {
-    setUsername(event.target.value); // accessing current value entered by the user
+    setGivenUsername(event.target.value);
   };
 
   const handlePasswordChange = (event) => {
-    setPassword(event.target.value); // accessing current value entered by the user
+    setGivenPassword(event.target.value);
+  };
+
+  // Log in form submission
+  const handleLoginSubmit = () => {
+    handleLogin(givenUsername, givenPassword);
   };
 
   return (
     <div>
       {isLoggedIn ? (
+        // 'isLoggedIn' is true
         <div>
           <p>Welcome, {username}!</p>
           <button onClick={handleLogout}>Logout</button>
         </div>
       ) : (
+        // 'isLoggedIn' is false
         <div>
           <input
             type="text"
             placeholder="Username"
-            value={username}
+            value={givenUsername}
             onChange={handleUsernameChange}
           />
           <input
             type="password"
             placeholder="Password"
-            value={password}
+            value={givenPassword}
             onChange={handlePasswordChange}
           />
-          <button onClick={handleLogin}>Login</button>
-          <p>{errorMessage}</p>
+          <button onClick={handleLoginSubmit}>Login</button>
+          <p>{invalidMessage}</p>
         </div>
       )}
     </div>
+  );
+};
+
+const App = () => {
+  return (
+    <AuthenticationComponent>
+      <FormComponent />
+    </AuthenticationComponent>
   );
 };
 
