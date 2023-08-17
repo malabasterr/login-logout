@@ -84,34 +84,43 @@ const FormComponent = () => {
 
   // rendering of pages
   return (
-    <div>
+    <div className='formComponent'>
       {isLoggedIn ? (
         // User is logged in (welcome page)
-        <div>
-          <p>Welcome, {username}!</p>
+        <div className='welcomeContainer'>
+          <p className='welcomeText'>Welcome, {username}! You have successfully logged in.</p>
+          <p>Click here to sign out:</p>
           <button onClick={handleLogout}>Logout</button>
         </div>
       ) : isInvalid ? (
         // User inputs invalid details (invalid username/password page)
-        <div>
-          <p>Invalid username or password</p>
-          <button onClick={handleLogout}>Logout</button>
+        <div className='invalidDetailsContainer'>
+          <p className='unsuccessfulText'>Log in unsuccessful- invalid username or password. Please try again</p>
+          <p>Click here to return to the log in page:</p>
+          <button onClick={handleLogout}>Back to log in</button>
         </div>
       ) : (
         // User is not logged in (homepage)
-        <div>
-          <input
-            type="text"
-            placeholder="Username"
-            value={givenUsername}
-            onChange={handleUsernameChange}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={givenPassword}
-            onChange={handlePasswordChange}
-          />
+        <div className='homepageContainer'>
+          <h1 className='title'>Log In Page</h1>
+          <div className='inputContainer'>
+            <label className='username'>Username:</label>
+            <input
+              type="text"
+              placeholder="Username"
+              value={givenUsername}
+              onChange={handleUsernameChange}
+            />
+          </div>
+          <div className='inputContainer'>
+            <label className='password'>Password:</label>
+            <input
+              type="password"
+              placeholder="Password"
+              value={givenPassword}
+              onChange={handlePasswordChange}
+            />
+          </div>
           <button onClick={handleLoginSubmit}>Login</button>
         </div>
       )}
